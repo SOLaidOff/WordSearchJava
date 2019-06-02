@@ -1,0 +1,16 @@
+# Project
+Assignment.md
+
+# Maven
+target/*
+!target/word-search*.jar
+
+# Eclipse
+/.classpath
+/.settings/
+/.project
+/bin/
+
+# Misc
+*.log
+*.bak
