@@ -3,13 +3,15 @@ package com.solo.challenge;
 public class Trie {
     private TrieNode root;
     
+    public Trie() {
+        root = new TrieNode(false);
+    }
+    
     public void addWord(String word) {
         root.addWord(word);
     }
-
-//    // For debug use
-//    @Override
-//    public String toString() {
-//        return root.toString();
-//    }
+    
+    public boolean containsWord(String word) {
+        return root.containsWord(word);
+    }
 }

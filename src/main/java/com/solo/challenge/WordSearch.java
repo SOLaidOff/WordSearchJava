@@ -98,15 +98,20 @@ public class WordSearch {
             String[] letters = line.split(" ");
             
             for(int colNumber = 0; colNumber < numCols; colNumber++) {
-                grid[rowNumber][colNumber] = letters[colNumber].charAt(0);
+                char nextLetter = letters[colNumber].charAt(0);
+                grid[rowNumber][colNumber] = Character.toUpperCase(nextLetter);
             }
         }
     }
     
     private void saveTargets(BufferedReader reader) throws IOException {
+        targets = new Trie();
+        
         String line = reader.readLine();
         while(line != null) {
-            targets.addWord(line);
+            targets.addWord(line.toUpperCase());
+            
+            line = reader.readLine();
         }
     }
 
