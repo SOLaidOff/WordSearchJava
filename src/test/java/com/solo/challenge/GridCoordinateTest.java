@@ -10,14 +10,14 @@ public class GridCoordinateTest {
     @DisplayName("Verify coordinate input")
     void verifyCoordinateInput() {
         GridCoordinate coordinate = new GridCoordinate(4, 2);
-        assertEquals(4, coordinate.getRow(), "Coordinates save row value");
-        assertEquals(2, coordinate.getCol(), "Coordinates save col value");
+        assertEquals(4, coordinate.getRow());
+        assertEquals(2, coordinate.getCol());
     }
 
     @Test
     @DisplayName("Verify String output")
     void verifyStringOutput() {
         GridCoordinate coordinate = new GridCoordinate(4, 2);
-        assertEquals("4:2", coordinate.toString(), "Coordinates display in 'row:col: format");
+        assertEquals("4:2", coordinate.toString());
     }
 }

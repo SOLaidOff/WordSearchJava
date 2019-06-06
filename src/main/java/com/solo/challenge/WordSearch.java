@@ -24,7 +24,7 @@ public class WordSearch {
     private int numRows;
     private int numCols;
     private char[][] grid;
-    private Trie targets;
+    private TrieNode wordsToFindRoot;
     private Set<FoundWord> answers;
     
     public static void main(String[] args) {
@@ -38,6 +38,7 @@ public class WordSearch {
     }
     
     public WordSearch() {
+        wordsToFindRoot = new TrieNode();
         answers = new HashSet<FoundWord>();
     }
 
@@ -110,12 +111,10 @@ public class WordSearch {
     }
     
     private void saveTargets(BufferedReader reader) throws IOException {
-        targets = new Trie();
-        
         String line = reader.readLine();
         line = line.replaceAll("\\s",""); // Per requirements, words to find may start out with spaces but spaces won't be included in the grid
         while(line != null) {
-            targets.addWord(line.toUpperCase());
+            wordsToFindRoot.addWord(line.toUpperCase());
             
             line = reader.readLine();
         }
@@ -133,7 +132,7 @@ public class WordSearch {
         GridCoordinate startingPoint = new GridCoordinate(row, col);
         
         for(SearchDirection direction : SearchDirection.values()) {
-            directionalSearch(startingPoint, direction, "", targets.getRoot(), startingPoint);
+            directionalSearch(startingPoint, direction, "", wordsToFindRoot, startingPoint);
         }
     }
     

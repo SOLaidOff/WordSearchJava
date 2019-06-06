@@ -10,6 +10,6 @@ public class FoundWordTest {
     @DisplayName("Verify String output")
     void verifyStringOutput() {
         FoundWord word = new FoundWord("TEST", new GridCoordinate(3, 3), new GridCoordinate(0, 0));
-        assertEquals("TEST 3:3 0:0", word.toString(), "Found words display in 'word start end' format");
+        assertEquals("TEST 3:3 0:0", word.toString());
     }
 }

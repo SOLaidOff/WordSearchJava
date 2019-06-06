@@ -39,9 +39,18 @@ public class TrieNodeTest {
     void insertLongWord() {
         TrieNode root = new TrieNode();
         root.addWord("DOG");
-        assertFalse(root.containsWord("A"));
-        assertFalse(root.containsWord("D"));
+
         assertTrue(root.containsWord("DOG"));
+
+        TrieNode d = root.getChild('D');
+        assertNotNull(d);
+        assertFalse(d.isTerminal());
+        TrieNode o = d.getChild('O');
+        assertNotNull(o);
+        assertFalse(o.isTerminal());
+        TrieNode g = o.getChild('G');
+        assertNotNull(g);
+        assertTrue(g.isTerminal());
     }
 
     @Test
@@ -53,7 +62,7 @@ public class TrieNodeTest {
         root.addWord("TRUCK");
         assertNotNull(root.getChild('P'));
         assertNotNull(root.getChild('T'));
-        assertNull(root.getChild('T'));
+        assertNull(root.getChild('R'));
     }
 
     @Test
