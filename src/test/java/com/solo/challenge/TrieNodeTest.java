@@ -13,17 +13,17 @@ public class TrieNodeTest {
     @DisplayName("By default, new nodes are not word-endings")
     void newNodesNotWordEndings() {
         TrieNode node = new TrieNode();
-        assertFalse(node.isTerminal());
+        assertFalse(node.isEndOfWord());
     }
 
     @Test
     @DisplayName("New nodes may have word ending status set manually")
     void newNodesManualWordEndings() {
         TrieNode nodeTrue = new TrieNode(true);
-        assertTrue(nodeTrue.isTerminal());
+        assertTrue(nodeTrue.isEndOfWord());
         
         TrieNode nodeFalse = new TrieNode(false);
-        assertFalse(nodeFalse.isTerminal());
+        assertFalse(nodeFalse.isEndOfWord());
     }
 
     @Test
@@ -44,13 +44,13 @@ public class TrieNodeTest {
 
         TrieNode d = root.getChild('D');
         assertNotNull(d);
-        assertFalse(d.isTerminal());
+        assertFalse(d.isEndOfWord());
         TrieNode o = d.getChild('O');
         assertNotNull(o);
-        assertFalse(o.isTerminal());
+        assertFalse(o.isEndOfWord());
         TrieNode g = o.getChild('G');
         assertNotNull(g);
-        assertTrue(g.isTerminal());
+        assertTrue(g.isEndOfWord());
     }
 
     @Test

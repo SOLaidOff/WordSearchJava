@@ -7,8 +7,8 @@ import org.junit.jupiter.api.Test;
 
 public class GridCoordinateTest {
     @Test
-    @DisplayName("Verify coordinate input")
-    void verifyCoordinateInput() {
+    @DisplayName("Verify coordinates save properly")
+    void verifyCoordinateSaving() {
         GridCoordinate coordinate = new GridCoordinate(4, 2);
         assertEquals(4, coordinate.getRow());
         assertEquals(2, coordinate.getCol());

@@ -11,7 +11,6 @@
 package com.solo.challenge;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashSet;
@@ -19,56 +18,51 @@ import java.util.Scanner;
 import java.util.Set;
 
 public class WordSearch {
-    public static final char INPUT_SIZE_DELIMITER = 'x';
+    public static final String INPUT_SIZE_DELIMITER = "x";
+    public static final String INPUT_GRID_DELIMITER = " ";
+    
+    private String inputFileName;
     
     private int numRows;
     private int numCols;
     private char[][] grid;
-    private TrieNode wordsToFindRoot;
+    private TrieNode wordsToFindTrie;
     private Set<FoundWord> answers;
     
     public static void main(String[] args) {
         WordSearch solver = new WordSearch();
         
+        String inputFileNameArg = args.length == 1 ? args[0] : null;
+        solver.setInputFileName(inputFileNameArg);
+        
         System.out.println("Welcome to the word search solver!");
+        System.out.println();
         
         solver.loadInput();
-        solver.solve(); // TODO: currently displays all instances of a word in the grid if it appears multiple times; confirm desired behavior
-        solver.displayAnswers(); // TODO: currently displays answers in random order; confirm this is acceptable
+        solver.solve(); // TODO: currently, if a word appears in the grid multiple times, program displays all instances; change this if not desired behavior
+        solver.displayAnswers(); // TODO: currently, answers are displayed in a random order; change this if not desired behavior
     }
     
     public WordSearch() {
-        wordsToFindRoot = new TrieNode();
+        wordsToFindTrie = new TrieNode();
         answers = new HashSet<FoundWord>();
+    }
+    
+    private void setInputFileName(String inputFileNameArg) {
+        inputFileName = inputFileNameArg;
     }
 
     private void loadInput() {
-        BufferedReader reader = openFile();
+        inputFileName = inputFileName == null ? getFilename() : inputFileName;
         
-        System.out.println();
-        
-        try {
+        try (BufferedReader reader = new BufferedReader(new FileReader(inputFileName))) {
             handleFirstLine(reader);
             createGrid(reader);
             saveTargets(reader);
-            
-            reader.close();
         } catch(IOException e) {
             System.err.println("File I/O error. Irrelevant because assignment says to ignore invalid input.");
             System.exit(1);
         }
-    }
-    
-    private BufferedReader openFile() {
-        BufferedReader reader = null;
-        try {
-            reader = new BufferedReader(new FileReader(getFilename()));
-        } catch(FileNotFoundException e) {
-            System.err.println("File not found. Irrelevant because assignment says to ignore invalid input.");
-            System.exit(1);
-        }
-        
-        return reader;
     }
     
     private String getFilename() {
@@ -85,12 +79,10 @@ public class WordSearch {
     private void handleFirstLine(BufferedReader reader) throws IOException {
         String line = reader.readLine();
         
-        int breakpoint = line.indexOf(INPUT_SIZE_DELIMITER);
-        
-        String rowString = line.substring(0, breakpoint);
-        String colString = line.substring(breakpoint + 1, line.length());
-        numRows = Integer.valueOf(rowString);
-        numCols = Integer.valueOf(colString);
+        String[] pieces = line.split(INPUT_SIZE_DELIMITER);
+
+        numRows = Integer.valueOf(pieces[0]);
+        numCols = Integer.valueOf(pieces[1]);
         
         grid = new char[numRows][numCols];
     }
@@ -101,7 +93,7 @@ public class WordSearch {
         for(int rowNumber = 0; rowNumber < numRows; rowNumber++) {
             line = reader.readLine();
 
-            String[] letters = line.split(" ");
+            String[] letters = line.split(INPUT_GRID_DELIMITER);
             
             for(int colNumber = 0; colNumber < numCols; colNumber++) {
                 char nextLetter = letters[colNumber].charAt(0);
@@ -112,15 +104,19 @@ public class WordSearch {
     
     private void saveTargets(BufferedReader reader) throws IOException {
         String line = reader.readLine();
-        line = line.replaceAll("\\s",""); // Per requirements, words to find may start out with spaces but spaces won't be included in the grid
+        // Per requirements, words to find may start out with spaces but spaces won't be included in the grid
+        // Potential minor improvement: saving original forms of search targets (i.e. keep spaces) for use when displaying results 
+        line = line.replaceAll("\\s","");
         while(line != null) {
-            wordsToFindRoot.addWord(line.toUpperCase());
+            wordsToFindTrie.addWord(line.toUpperCase());
             
             line = reader.readLine();
         }
     }
     
     private void solve() {
+        // Overall algorithm: for all cells in grid, look at each one as a possible starting point for words in every direction
+        // Potential minor optimizations: stop searching when exceeding maximum search term length; stop searching after all words found
         for(int row = 0; row < numRows; row++) {
             for(int col = 0; col < numCols; col++) {
                 searchStartingPoint(row, col);
@@ -132,7 +128,7 @@ public class WordSearch {
         GridCoordinate startingPoint = new GridCoordinate(row, col);
         
         for(SearchDirection direction : SearchDirection.values()) {
-            directionalSearch(startingPoint, direction, "", wordsToFindRoot, startingPoint);
+            directionalSearch(startingPoint, direction, "", wordsToFindTrie, startingPoint);
         }
     }
     
@@ -152,7 +148,7 @@ public class WordSearch {
         
         // Recursive case: append the current letter to the string generated so far, see if it matches a word, and continue searching in the desired direction
         String newWord = wordSoFar + grid[row][col];
-        if(childNode.isTerminal()) {
+        if(childNode.isEndOfWord()) {
             answers.add(new FoundWord(newWord, startingPoint, new GridCoordinate(row, col)));
         }
         

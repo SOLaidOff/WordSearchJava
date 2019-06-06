@@ -4,16 +4,16 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class TrieNode {
-    private boolean terminal;
+    private boolean endOfWord;
     private Map<Character, TrieNode> children;
     
     public TrieNode() {
         this(false);
     }
     
-    public TrieNode(boolean terminal) {
+    public TrieNode(boolean endOfWord) {
         children = new HashMap<Character, TrieNode>();
-        this.terminal = terminal;
+        this.endOfWord = endOfWord;
     }
     
     public void addWord(String word) {
@@ -21,7 +21,7 @@ public class TrieNode {
         boolean endOfWord = word.length() == 1;
         
         TrieNode child = getOrMakeChild(currentLetter);
-        child.setTerminal(child.isTerminal() || endOfWord); // Don't overwrite terminal marker for longer words that start with shorter words, e.g. CAR and CARPET
+        child.setEndOfWord(child.isEndOfWord() || endOfWord); // Don't overwrite terminal marker for longer words that start with shorter words, e.g. CAR and CARPET
         if(!endOfWord) {
             child.addWord(word.substring(1, word.length()));
         }
@@ -40,12 +40,12 @@ public class TrieNode {
         return children.get(letter);
     }
     
-    private void setTerminal(boolean value) {
-        terminal = value;
+    private void setEndOfWord(boolean value) {
+        endOfWord = value;
     }
     
-    boolean isTerminal() {
-        return terminal;
+    boolean isEndOfWord() {
+        return endOfWord;
     }
     
     public boolean containsWord(String word) {
@@ -58,7 +58,7 @@ public class TrieNode {
         
         boolean endOfWord = word.length() == 1;
         if(endOfWord) {
-            return child.isTerminal();
+            return child.isEndOfWord();
         } else {
             return child.containsWord(word.substring(1, word.length()));
         }
