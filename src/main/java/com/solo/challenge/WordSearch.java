@@ -14,7 +14,9 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Scanner;
+import java.util.Set;
 
 public class WordSearch {
     public static final char INPUT_SIZE_DELIMITER = 'x';
@@ -23,6 +25,7 @@ public class WordSearch {
     private int numCols;
     private char[][] grid;
     private Trie targets;
+    Set<FoundWord> answers;
     
     public static void main(String[] args) {
         WordSearch solver = new WordSearch();
@@ -30,10 +33,12 @@ public class WordSearch {
         System.out.println("Welcome to the word search solver!");
         
         solver.loadInput();
+        solver.solve(); // TODO: currently displays all instances of a word in the grid if it appears multiple times; confirm desired behavior
+        solver.displayAnswers(); // TODO: currently displays answers in random order; confirm this is acceptable
     }
     
     public WordSearch() {
-        
+        answers = new HashSet<FoundWord>();
     }
 
     private void loadInput() {
@@ -108,10 +113,89 @@ public class WordSearch {
         targets = new Trie();
         
         String line = reader.readLine();
+        line = line.replaceAll("\\s",""); // Per requirements, words to find may start out with spaces but spaces won't be included in the grid
         while(line != null) {
             targets.addWord(line.toUpperCase());
             
             line = reader.readLine();
+        }
+    }
+    
+    private void solve() {
+        for(int row = 0; row < numRows; row++) {
+            for(int col = 0; col < numCols; col++) {
+                searchStartingPoint(row, col);
+            }
+        }
+    }
+    
+    private void searchStartingPoint(int row, int col) {
+        GridCoordinate startingPoint = new GridCoordinate(row, col);
+        
+        for(SearchDirection direction : SearchDirection.values()) {
+            directionalSearch(startingPoint, direction, "", targets.getRoot(), startingPoint);
+        }
+    }
+    
+    private void directionalSearch(GridCoordinate currentLocation, SearchDirection searchDirection, String wordSoFar, TrieNode currentNode, GridCoordinate startingPoint) {
+        int row = currentLocation.getRow();
+        int col = currentLocation.getCol();
+        
+        // Recursive base case 1 of 2: grid exceeded
+        if(!isValidLocation(row, col)) {
+            return;
+        }
+        // Recursive base case 2 of 2: none of the target words start with the letters seen so far
+        TrieNode childNode = currentNode.getChild(grid[row][col]);
+        if(childNode == null) {
+            return;
+        }
+        
+        // Recursive case: append the current letter to the string generated so far, see if it matches a word, and continue searching in the desired direction
+        String newWord = wordSoFar + grid[row][col];
+        if(childNode.isTerminal()) {
+            answers.add(new FoundWord(newWord, startingPoint, new GridCoordinate(row, col)));
+        }
+        
+        GridCoordinate nextLocation = null;
+        try {
+            nextLocation = moveInDirection(searchDirection, currentLocation);
+        } catch(WordSearchException e) {
+            System.exit(1);
+        }
+        directionalSearch(nextLocation, searchDirection, newWord, childNode, startingPoint);
+    }
+    
+    private boolean isValidLocation(int row, int col) {
+        return row >= 0 && row < numRows && col >= 0 && col < numCols;
+    }
+    
+    private GridCoordinate moveInDirection(SearchDirection direction, GridCoordinate currentLocation) throws WordSearchException {
+        switch (direction) {
+            case UP:
+                return new GridCoordinate(currentLocation.getRow() - 1, currentLocation.getCol());
+            case UP_RIGHT:
+                return new GridCoordinate(currentLocation.getRow() - 1, currentLocation.getCol() + 1);
+            case RIGHT:
+                return new GridCoordinate(currentLocation.getRow(), currentLocation.getCol() + 1);
+            case DOWN_RIGHT:
+                return new GridCoordinate(currentLocation.getRow() + 1, currentLocation.getCol() + 1);
+            case DOWN:
+                return new GridCoordinate(currentLocation.getRow() + 1, currentLocation.getCol());
+            case DOWN_LEFT:
+                return new GridCoordinate(currentLocation.getRow() + 1, currentLocation.getCol() - 1);
+            case LEFT:
+                return new GridCoordinate(currentLocation.getRow(), currentLocation.getCol() - 1);
+            case UP_LEFT:
+                return new GridCoordinate(currentLocation.getRow() - 1, currentLocation.getCol() - 1);
+            default:
+                throw new WordSearchException("Unknown direction");
+        }
+    }
+    
+    private void displayAnswers() {
+        for(FoundWord word : answers) {
+            System.out.println(word);
         }
     }
 

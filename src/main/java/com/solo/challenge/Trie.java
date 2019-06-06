@@ -14,4 +14,8 @@ public class Trie {
     public boolean containsWord(String word) {
         return root.containsWord(word);
     }
+    
+    public TrieNode getRoot() {
+        return root;
+    }
 }

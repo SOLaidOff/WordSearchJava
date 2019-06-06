@@ -21,9 +21,9 @@ class WordSearchTest {
      * TODO: after getting started, remove the following example tests that came with the bootstrap project
      * */
 	@Test
-	@DisplayName("1 + 1 = 2")
-	void addsTwoNumbers() {
-		WordSearch calculator = new WordSearch();
-		assertEquals(2, calculator.add(1, 1), "1 + 1 should equal 2");
+	@DisplayName("Search N out-of-bounds")
+	void searchNOutOfBounds() {
+		WordSearch wordSearch = new WordSearch();
+//		assertEquals(wordSearch.searchN(-1, 2, "foo", null, null), calculator.add(1, 1), "Search methods should return silently when out of bounds");
 	}
 }

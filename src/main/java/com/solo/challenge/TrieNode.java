@@ -8,7 +8,7 @@ public class TrieNode {
     private Map<Character, TrieNode> children;
     
     public TrieNode() {
-        children = new HashMap<Character, TrieNode>();
+        this(false);
     }
     
     public TrieNode(boolean terminal) {
@@ -21,14 +21,18 @@ public class TrieNode {
         boolean endOfWord = word.length() == 1;
         
         TrieNode child = getOrMakeChild(currentLetter);
-        child.setTerminal(endOfWord);
+        child.setTerminal(child.isTerminal() || endOfWord); // Don't overwrite terminal marker for longer words that start with shorter words, e.g. CAR and CARPET
         if(!endOfWord) {
             child.addWord(word.substring(1, word.length()));
         }
     }
+
+    TrieNode getChild(char letter) {
+        return children.get(letter);
+    }
     
     private TrieNode getOrMakeChild(char letter) {
-        TrieNode mapEntry = children.get(letter);
+        TrieNode mapEntry = getChild(letter);
         if(mapEntry == null) {
             children.put(letter, new TrieNode());
         }
@@ -40,7 +44,7 @@ public class TrieNode {
         terminal = value;
     }
     
-    private boolean isTerminal() {
+    boolean isTerminal() {
         return terminal;
     }
     
