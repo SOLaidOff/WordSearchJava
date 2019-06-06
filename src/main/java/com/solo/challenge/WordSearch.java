@@ -13,9 +13,9 @@ package com.solo.challenge;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Scanner;
-import java.util.Set;
 
 public class WordSearch {
     public static final String INPUT_SIZE_DELIMITER = "x";
@@ -27,7 +27,7 @@ public class WordSearch {
     private int numCols;
     private char[][] grid;
     private TrieNode wordsToFindTrie;
-    private Set<FoundWord> answers;
+    private List<FoundWord> foundWords;
     
     public static void main(String[] args) {
         WordSearch solver = new WordSearch();
@@ -39,13 +39,13 @@ public class WordSearch {
         System.out.println();
         
         solver.loadInput();
-        solver.solve(); // TODO: currently, if a word appears in the grid multiple times, program displays all instances; change this if not desired behavior
-        solver.displayAnswers(); // TODO: currently, answers are displayed in a random order; change this if not desired behavior
+        solver.solve(); // Currently, if a word appears in the grid multiple times, program displays only one instance; change this if not desired behavior
+        solver.displayAnswers();
     }
     
     public WordSearch() {
         wordsToFindTrie = new TrieNode();
-        answers = new HashSet<FoundWord>();
+        foundWords = new LinkedList<FoundWord>();
     }
     
     private void setInputFileName(String inputFileNameArg) {
@@ -106,10 +106,10 @@ public class WordSearch {
     private void saveTargets(BufferedReader reader) throws IOException {
         String line = reader.readLine();
         // Per requirements, words to find may start out with spaces but spaces won't be included in the grid
-        // Potential minor improvement: saving original forms of search targets (i.e. keep spaces) for use when displaying results 
         while(line != null) {
-            line = line.replaceAll("\\s","");
-            wordsToFindTrie.addWord(line.toUpperCase());
+            String lineWithoutSpaces = line.replaceAll("\\s","");
+            foundWords.add(new FoundWord(line, lineWithoutSpaces));
+            wordsToFindTrie.addWord(lineWithoutSpaces.toUpperCase());
             
             line = reader.readLine();
         }
@@ -150,13 +150,20 @@ public class WordSearch {
         // Recursive case: append the current letter to the string generated so far, see if it matches a word, and continue searching in the desired direction
         String newWord = wordSoFar + grid[row][col];
         if(childNode.isEndOfWord()) {
-            answers.add(new FoundWord(newWord, startingPoint, new GridCoordinate(row, col)));
+            try {
+                FoundWord answer = getAnswerLocationForWord(newWord);
+                answer.setStartAndEnd(startingPoint, currentLocation);
+            } catch(WordSearchException e) {
+                System.err.println(e);
+                System.exit(1);
+            }
         }
         
         GridCoordinate nextLocation = null;
         try {
             nextLocation = moveInDirection(searchDirection, currentLocation);
         } catch(WordSearchException e) {
+            System.err.println(e);
             System.exit(1);
         }
         directionalSearch(nextLocation, searchDirection, newWord, childNode, startingPoint);
@@ -164,6 +171,16 @@ public class WordSearch {
     
     private boolean isValidLocation(int row, int col) {
         return row >= 0 && row < numRows && col >= 0 && col < numCols;
+    }
+    
+    private FoundWord getAnswerLocationForWord(String wordWithoutSpaces) throws WordSearchException {
+        for(FoundWord foundWord : foundWords) {
+            if(wordWithoutSpaces.equals(foundWord.getWordWithoutSpaces())) {
+                return foundWord;
+            }
+        }
+        
+        throw new WordSearchException("Found a word not in the list of target words");
     }
     
     private GridCoordinate moveInDirection(SearchDirection direction, GridCoordinate currentLocation) throws WordSearchException {
@@ -190,8 +207,12 @@ public class WordSearch {
     }
     
     private void displayAnswers() {
-        for(FoundWord word : answers) {
+        for(FoundWord word : foundWords) {
             System.out.println(word);
         }
+
+        System.out.println();
+        System.out.println("Word search complete!");
+        System.out.println();
     }
 }
