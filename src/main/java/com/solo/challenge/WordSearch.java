@@ -66,12 +66,13 @@ public class WordSearch {
     }
     
     private String getFilename() {
-        System.out.println();
         System.out.println("Please enter the location of the input file:");
         
         Scanner scanner = new Scanner(System.in);
         String filename = scanner.nextLine();
         scanner.close();
+        
+        System.out.println();
         
         return filename;
     }
@@ -106,8 +107,8 @@ public class WordSearch {
         String line = reader.readLine();
         // Per requirements, words to find may start out with spaces but spaces won't be included in the grid
         // Potential minor improvement: saving original forms of search targets (i.e. keep spaces) for use when displaying results 
-        line = line.replaceAll("\\s","");
         while(line != null) {
+            line = line.replaceAll("\\s","");
             wordsToFindTrie.addWord(line.toUpperCase());
             
             line = reader.readLine();
