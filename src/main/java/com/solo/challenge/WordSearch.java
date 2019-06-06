@@ -25,7 +25,7 @@ public class WordSearch {
     private int numCols;
     private char[][] grid;
     private Trie targets;
-    Set<FoundWord> answers;
+    private Set<FoundWord> answers;
     
     public static void main(String[] args) {
         WordSearch solver = new WordSearch();
@@ -198,9 +198,4 @@ public class WordSearch {
             System.out.println(word);
         }
     }
-
-    // TODO: after getting started, remove this sample method that came with the bootstrap project
-	public int add(int a, int b) {
-		return a + b;
-	}
 }

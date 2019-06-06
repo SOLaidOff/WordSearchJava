@@ -63,10 +63,4 @@ public class TrieNode {
             return child.containsWord(word.substring(1, word.length()));
         }
     }
-
-    // Mostly for debug use
-    @Override
-    public String toString() {
-        return "TrieNode [children=" + children + "] [Is " + (terminal ? "" : "not ") + "a terminal]";
-    }
 }
